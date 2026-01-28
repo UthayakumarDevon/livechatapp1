@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>ChatApp</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h2>ChatRoom</h2>
+    <div class="topbar">
+      <input class="bar1" id="roomInput" placeholder="Room">
+      <input class="bar1" id="nameInput" placeholder="Your name">
+      <button id="joinBtn" class="btn1">Join</button>
+      <button id="darkBtn" class="btn1">Dark Mode</button>
+    </div>
+
+    <!-- Date banner -->
+    <div id="dateBanner"></div>
+
+    <div id="chat"></div>
+    <div id="typing" class="hidden"></div>
+
+    <!-- Input bar with text + file upload -->
+    <div class="inputbar">
+      <input id="msgInput" placeholder="Type a message">
+      <button id="sendBtn" class="btn">Send</button>
+
+      <!-- Hidden file input -->
+      <input type="file" id="fileInput" 
+             accept="image/*,video/*,.pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt" 
+             style="display:none">
+
+      <!-- Upload button triggers file picker -->
+      <button id="uploadBtn" class="btn">Upload</button>
+    </div>
+  </div>
+
+  <!-- Preview overlay -->
+  <div id="previewOverlay" class="hidden">
+    <div id="previewContent"></div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="client.js"></script>
+</body>
+</html>
