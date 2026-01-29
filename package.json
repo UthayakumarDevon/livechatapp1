@@ -9,7 +9,7 @@
   "express": "^4.22.1",
   "socket.io": "^4.8.3",
   "sqlite3": "^5.1.7",
-  "multer": "^1.4.5"
+  "multer": "^1.4.5-lts.1"
 },
   "description": "Real-time chat app with Socket.IO and SQLite",
   "keywords": [],

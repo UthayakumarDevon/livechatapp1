@@ -1,7 +1,4 @@
-// ===== Socket connection =====
-// IMPORTANT: Replace the URL below with your actual backend host (Render, Railway, etc.)
-const socket = io("https://your-backend.onrender.com");
-
+const socket = io();
 const chat = document.getElementById('chat');
 const msgInput = document.getElementById('msgInput');
 const typingDiv = document.getElementById('typing');
@@ -30,13 +27,16 @@ socket.on('lastSeenId', id => {
 
 socket.on('history', rows => {
   lastRenderedDate = null; // reset when loading history
+  chat.innerHTML = '';      // clear old messages
+
   rows.forEach(r => renderMessage(r.id, r.sender, r.text, r.ts, r.fileUrl, r.fileType));
 
   if (lastSeenId) {
     const lastRow = document.getElementById('msg-' + lastSeenId);
     const lastIndex = rows.findIndex(r => r.id === lastSeenId);
 
-    if (lastRow && lastIndex !== -1 && lastIndex < rows.length - 1 && !unreadInserted) {
+    const hasNew = lastRow && lastIndex !== -1 && lastIndex < rows.length - 1;
+    if (hasNew && !unreadInserted) {
       const divider = document.createElement('div');
       divider.className = 'notice unread';
       divider.textContent = 'Unread messages';
@@ -45,6 +45,8 @@ socket.on('history', rows => {
 
       const offset = lastRow.offsetTop - (chat.clientHeight * 0.8);
       chat.scrollTo({ top: offset > 0 ? offset : 0, behavior: 'auto' });
+    } else {
+      setTimeout(scrollToBottom, 0);
     }
   } else {
     setTimeout(scrollToBottom, 0);
@@ -61,17 +63,156 @@ socket.on('message', msg => {
 });
 
 // ===== Delivered / Seen =====
-socket.on('delivered', ({ id }) => setTicks(id, '✓', 'delivered'));
+socket.on('delivered', ({ id }) => setTicks(id, '✓✓', 'delivered'));
+
 socket.on('seen', ({ id, names }) => {
   const row = document.getElementById('msg-' + id);
   if (!row) return;
-  row.dataset.seenNames = JSON.stringify(names);
+  let existing = [];
+  try { existing = JSON.parse(row.dataset.seenNames || '[]'); } catch {}
+  const merged = Array.from(new Set([...existing, ...names]));
+  row.dataset.seenNames = JSON.stringify(merged);
+  setTicks(id, '✓✓', 'seen');
+});
+
+// ===== Date label helper =====
+function formatDayLabel(ts) {
+  const msgDate = new Date(ts);
+  const today = new Date();
+  const yesterday = new Date();
+  yesterday.setDate(today.getDate() - 1);
+
+  const msgDay = msgDate.toDateString();
+  if (msgDay === today.toDateString()) return "Today";
+  if (msgDay === yesterday.toDateString()) return "Yesterday";
+  return msgDate.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+function renderMessage(id, sender, text, ts, fileUrl, fileType) {
+  const msgDate = new Date(ts);
+  const dayString = msgDate.toDateString();
+  const dayLabel = formatDayLabel(ts);
+
+  // Update top date banner only
+  if (lastRenderedDate !== dayString) {
+    document.getElementById('dateBanner').textContent = dayLabel;
+    lastRenderedDate = dayString;
+  }
+
+  const isOut = sender === myName;
+  const row = document.createElement('div');
+  row.className = 'row ' + (isOut ? 'out' : 'in');
+  row.id = 'msg-' + id;
+
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble';
+
+  const avatar = document.createElement('div');
+  avatar.className = 'avatar';
+  avatar.textContent = (sender || '?').charAt(0).toUpperCase();
+
+  const content = document.createElement('div');
+  content.className = 'content';
+
+  const textEl = document.createElement('div');
+  if (fileUrl) {
+    if (fileType === 'image') {
+      textEl.innerHTML = `<strong>${escapeHtml(sender)}:</strong><br>
+        <img src="${fileUrl}" style="max-width:200px;border-radius:8px;cursor:pointer;">`;
+      textEl.querySelector('img').onclick = () => openPreview(
+        `<img src="${fileUrl}" style="max-width:90%;max-height:90%;border-radius:8px;">`
+      );
+    } else if (fileType === 'video') {
+      textEl.innerHTML = `<strong>${escapeHtml(sender)}:</strong><br>
+        <video src="${fileUrl}" controls style="max-width:250px;border-radius:8px;cursor:pointer;"></video>`;
+      textEl.querySelector('video').onclick = () => openPreview(
+        `<video src="${fileUrl}" controls autoplay style="max-width:90%;max-height:90%;border-radius:8px;"></video>`
+      );
+    } else {
+      textEl.innerHTML = `<strong>${escapeHtml(sender)}:</strong><br>
+        <span style="color:blue;cursor:pointer;">Download file</span>`;
+      textEl.querySelector('span').onclick = () => openPreview(
+        `<iframe src="${fileUrl}" style="width:80vw;height:80vh;border:none;"></iframe>`
+      );
+    }
+  } else {
+    textEl.innerHTML = `<strong>${escapeHtml(sender)}:</strong> ${escapeHtml(text)}`;
+  }
+
+  const meta = document.createElement('div');
+  meta.className = 'meta';
+  const timeEl = document.createElement('span');
+  timeEl.className = 'ts';
+  timeEl.textContent = msgDate.toLocaleTimeString();
+  meta.appendChild(timeEl);
+
+  if (isOut) {
+    const tickEl = document.createElement('span');
+    tickEl.className = 'ticks sent';
+    tickEl.textContent = '✓';
+    meta.appendChild(tickEl);
+  }
+
+  const reactEl = document.createElement('div');
+  reactEl.className = 'reaction-display';
+
+  content.appendChild(textEl);
+  content.appendChild(meta);
+  content.appendChild(reactEl);
+
+  bubble.appendChild(avatar);
+  bubble.appendChild(content);
+  row.appendChild(bubble);
+  chat.appendChild(row);
+
+  // Context menus
+  bubble.oncontextmenu = (e) => {
+    e.preventDefault();
+    if (isOut) {
+      showSenderPopup(bubble, id);
+    } else {
+      showReactionPopup(bubble, id);
+    }
+  };
+
+  // Long press (mobile)
+  setupLongPress(bubble, () => {
+    if (isOut) {
+      showSenderPopup(bubble, id);
+    } else {
+      showReactionPopup(bubble, id);
+    }
+  });
+}
+
+// ===== Helpers =====
+function setTicks(id, symbol, cls) {
+  const row = document.getElementById('msg-' + id);
+  if (!row) return;
   const tickEl = row.querySelector('.ticks');
   if (tickEl) {
-    tickEl.textContent = names.length === 1
-      ? `✓✓ seen by ${names[0]}`
-      : `✓✓ seen by ${names.length} people`;
-    tickEl.className = 'ticks seen';
+    tickEl.textContent = symbol;
+    tickEl.className = 'ticks ' + cls;
+  }
+}
+
+function markSeenVisible() {
+  const chatRect = chat.getBoundingClientRect();
+  const rows = chat.querySelectorAll('.row.out');
+  rows.forEach(r => {
+    const rect = r.getBoundingClientRect();
+    if (rect.top >= chatRect.top && rect.bottom <= chatRect.bottom) {
+      socket.emit('seen', { room: currentRoom, id: r.id.replace('msg-', '') });
+    }
+  });
+}
+
+// ===== Unread divider auto-remove =====
+chat.addEventListener('scroll', () => {
+  if (isAtBottom()) {
+    const divider = chat.querySelector('.notice.unread');
+    if (divider) divider.remove();
+    unreadInserted = false;
   }
 });
 
@@ -99,7 +240,6 @@ socket.on('typing', ({ name, typing }) => {
     setTimeout(() => typingDiv.textContent = '', 300);
   }
 });
-
 // ===== Send =====
 document.getElementById('sendBtn').onclick = () => {
   const text = msgInput.value.trim();
@@ -116,6 +256,7 @@ document.getElementById('sendBtn').onclick = () => {
 
   scrollToBottom();
 };
+
 // ===== Upload =====
 document.getElementById('uploadBtn').onclick = () => {
   document.getElementById('fileInput').click();
@@ -129,11 +270,7 @@ document.getElementById('fileInput').onchange = async () => {
   formData.append('file', fileInput.files[0]);
 
   try {
-    // IMPORTANT: Use your backend host URL here
-    const res = await fetch("https://your-backend.onrender.com/upload", {
-      method: 'POST',
-      body: formData
-    });
+    const res = await fetch('/upload', { method: 'POST', body: formData });
     const data = await res.json();
 
     const id = Date.now() + '-' + Math.random().toString(36).substr(2, 5);
@@ -147,7 +284,6 @@ document.getElementById('fileInput').onchange = async () => {
     console.error('Upload failed:', err);
   }
 };
-
 // ===== Dark mode =====
 document.getElementById('darkBtn').onclick = () => {
   document.body.classList.toggle('dark');
@@ -186,7 +322,6 @@ function formatDayLabel(ts) {
   if (msgDay === yesterday.toDateString()) return "Yesterday";
   return msgDate.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
 }
-
 function renderMessage(id, sender, text, ts, fileUrl, fileType) {
   const msgDate = new Date(ts);
   const dayString = msgDate.toDateString();
@@ -285,9 +420,7 @@ function renderMessage(id, sender, text, ts, fileUrl, fileType) {
       showReactionPopup(bubble, id);
     }
   });
-}
-
-// ===== Emoji popup (receivers) =====
+}// ===== Emoji popup (receivers) =====
 function showReactionPopup(bubble, id) {
   const old = document.querySelector('.reaction-popup');
   if (old) old.remove();
@@ -341,33 +474,19 @@ function showSenderPopup(bubble, id) {
     popup.appendChild(seenDiv);
   }
 
-const emojis = ['👍','❤️','😊','😡','😉','😅','😮','😢','🙏'];
-const emojiDiv = document.createElement('div');
-emojis.forEach(e => {
-  const span = document.createElement('span');
-  span.textContent = e;
-  span.onclick = () => {
-    socket.emit('reaction', { room: currentRoom, id, emoji: e });
-    popup.remove();
-  };
-  emojiDiv.appendChild(span);
-});
-popup.appendChild(emojiDiv);
+  const emojis = ['👍','❤️','😊','😡','😉','😅','😮','😢','🙏'];
+  const emojiDiv = document.createElement('div');
+  emojis.forEach(e => {
+    const span = document.createElement('span');
+    span.textContent = e;
+    span.onclick = () => {
+      socket.emit('reaction', { room: currentRoom, id, emoji: e });
+      popup.remove();
+    };
+    emojiDiv.appendChild(span);
+  });
+  popup.appendChild(emojiDiv);
 
-chat.appendChild(popup);
-const bubbleRect = bubble.getBoundingClientRect();
-popup.style.left = `${bubbleRect.left}px`;
-popup.style.top = `${bubbleRect.bottom + 5}px`;   // <-- this line was cut off
-requestAnimationFrame(() => popup.classList.add('show'));
-
-const onDocClick = (ev) => {
-  if (!popup.contains(ev.target)) {
-    popup.classList.remove('show');
-    setTimeout(() => popup.remove(), 250);
-    document.removeEventListener('click', onDocClick);
-  }
-};
-setTimeout(() => document.addEventListener('click', onDocClick), 0);
   chat.appendChild(popup);
   const bubbleRect = bubble.getBoundingClientRect();
   popup.style.left = `${bubbleRect.left}px`;
@@ -402,30 +521,20 @@ function escapeHtml(str) {
     '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
   }[m]));
 }
-
 function appendNotice(text) {
   const div = document.createElement('div');
   div.className = 'notice';
   div.textContent = text;
   chat.appendChild(div);
 }
-
 function scrollToBottom() { chat.scrollTop = chat.scrollHeight; }
-
-function isAtBottom() {
-  return chat.scrollTop + chat.clientHeight >= chat.scrollHeight - 5;
-}
-
+function isAtBottom() { return chat.scrollTop + chat.clientHeight >= chat.scrollHeight - 5; }
 function setTicks(id, symbol, cls) {
   const row = document.getElementById('msg-' + id);
   if (!row) return;
   const tickEl = row.querySelector('.ticks');
-  if (tickEl) {
-    tickEl.textContent = symbol;
-    tickEl.className = 'ticks ' + cls;
-  }
+  if (tickEl) { tickEl.textContent = symbol; tickEl.className = 'ticks ' + cls; }
 }
-
 function markSeenVisible() {
   const rows = chat.querySelectorAll('.row.out');
   rows.forEach(r => {
@@ -435,13 +544,8 @@ function markSeenVisible() {
     }
   });
 }
-
 function setupLongPress(el, callback) {
   let timer;
-  el.addEventListener('touchstart', () => {
-    timer = setTimeout(callback, 600);
-  });
-  el.addEventListener('touchend', () => {
-    clearTimeout(timer);
-  });
+  el.addEventListener('touchstart', () => { timer = setTimeout(callback, 600); });
+  el.addEventListener('touchend', () => { clearTimeout(timer); });
 }
