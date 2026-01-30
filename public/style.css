@@ -245,7 +245,6 @@ body.dark .typing-indicator span { background: #eee; }
   position: sticky;
   bottom: 0;
   background: #f9f9f9;
-  padding: 8px;
   border-radius: 8px;
 }
 .inputbar input {
