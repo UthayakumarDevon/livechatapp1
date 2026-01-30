@@ -308,7 +308,7 @@ body.dark .ticks.seen { color: lightgreen; }
 
 /* ===== Responsive ===== */
 @media (max-width:600px) {
-  .container { width:92%; max-width: 95%; }
+  .container { width:50%; max-width: 95%; }
   #chat { border-radius: 8px; }
   .topbar { height:20px; width:100%; }
 }
