@@ -24,31 +24,85 @@ body {
   text-align: center;
   font-weight: bold;
   font-size: 0.95em;
-  color: #444;
+  color: #222;
   margin: 6px 0;
-  padding: 4px 8px;
+  padding: 6px 10px;
   background: #f0f0f0;
-  border-radius: 6px;
+  border-bottom: 1px solid #ccc;   /* subtle separator line */
+  border-radius:6px;
   position: sticky;
   top: 0;
-  z-index: 5;
+  z-index: 10;                     /* ensure it stays above chat */
 }
+
 body.dark #dateBanner {
   background: #333;
   color: #eee;
+  border-bottom: 1px solid #555;
 }
+
+/* ===== Date divider ===== */
+.date-divider {
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 12px 0;
+  font-size: 0.85em;
+  color: #666;
+  position: sticky;
+  top: -10px;
+  background-color: #fff;
+}
+
+.date-divider::before,
+.date-divider::after {
+  content: "";
+  flex: 1;
+  border-bottom: 3px solid #ccc;
+  margin: 0 8px;
+}
+
+.date-divider span {
+  background-color: #fff; /* or match your chat background */
+  padding: 0 10px;
+  border-radius: 12px;
+  font-weight: 500;
+}
+
+/* Dark theme overrides */
+body.dark .date-divider {
+  background-color: #1e1e1e;
+  color: #ccc;
+}
+
+body.dark .date-divider::before,
+body.dark .date-divider::after {
+  border-bottom: 3px solid #666; /* only override what changes */
+}
+
+body.dark .date-divider span {
+  background-color: #1e1e1e;
+}
+
 
 /* ===== Chat area ===== */
 #chat {
   flex: 1;
   overflow-y: auto;
-  border: 1px solid #ccc;
   padding: 10px;
-  background: #fff;
+  border: 1px solid #ccc;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
   transition: background 0.3s, border-color 0.3s;
+  
+  /* Background settings */
+  background-color: #fff; /* fallback */
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
+
 
 /* ===== Message rows ===== */
 .row {
@@ -79,12 +133,62 @@ body.dark #dateBanner {
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: #888;
-  color: #fff;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
+  background-color: purple; /* fallback for initials */
+  color: #fff;
+  font-weight: bold;
+  margin-right: 8px;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 12px; /* add horizontal padding */
+}
+
+.profile-btn {
+  font-size: 0.8em;
+  padding: 3px 6px;
+  border: none;
+  border-radius: 6px;
+  background-color: #007bff;
+  color: #fff;
+  cursor: pointer;
+}
+
+/* Expanded avatar overlay */
+.avatar-expanded {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 90%;
+  max-height: 90%;
+  border-radius: 8px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
+  z-index: 9999;
+  background: #fff;
+}
+
+.avatar span {
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #555;
+  color: #fff;
+  text-align: center;
+  line-height: 32px;
+  font-weight: bold;
 }
 
 /* ===== Bubble colors ===== */
@@ -129,7 +233,7 @@ body.dark .notice.unread {
 /* ===== Ticks ===== */
 .ticks { font-weight: bold; font-size: 0.75em; color: #666; }
 .ticks.delivered { color: #666; }
-.ticks.seen { color: green; }
+.ticks.seen { color: lightgreen; }
 .row.out .ticks.delivered { color: #e9ffe9; }
 .row.out .ticks.seen { color: #c8f7c8; }
 
@@ -175,9 +279,22 @@ body.dark .sender-popup { background: #333; border-color: #555; color: #eee; }
 body.dark .sender-popup span { color: #ffcc00; }
 
 /* ===== Typing indicator ===== */
-#typing { margin: 4px 0; font-style: italic; color: #888; transition: opacity 0.3s ease; }
+#typing {
+  margin: 4px 0;
+  font-style: italic;
+  color: #888;
+  transition: opacity 0.3s ease;
+
+  /* NEW: ensure it sits above the input bar */
+  position: sticky;
+  bottom: 60px;   /* adjust to match your input bar height */
+  z-index: 5;
+}
+
 #typing.hidden { opacity: 0; }
+
 .typing-indicator { display: inline-block; height: 20px; }
+
 .typing-indicator span {
   display: inline-block;
   width: 6px; height: 6px;
@@ -186,15 +303,21 @@ body.dark .sender-popup span { color: #ffcc00; }
   border-radius: 50%;
   animation: bounce 1.2s infinite;
 }
+
 .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
 .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
-@keyframes bounce { 0%,80%,100% { transform: scale(0); } 40% { transform: scale(1); } }
+
+@keyframes bounce {
+  0%,80%,100% { transform: scale(0); }
+  40% { transform: scale(1); }
+}
+
 body.dark .typing-indicator span { background: #eee; }
 
 /* ===== Heading ===== */
 .container h2 {
   margin: 0;
-  padding: 8px 0;
+  padding: 8px 12px;
   text-align: center;
   font-size: 1.5em;
   font-weight: bold;
@@ -224,7 +347,7 @@ body.dark .typing-indicator span { background: #eee; }
 }
 
 /* ===== Buttons ===== */
-.btn1, .btn {
+.btn1, .btn2, .btn {
   background: #25d366;
   border: none;
   color: #fff;
@@ -232,9 +355,44 @@ body.dark .typing-indicator span { background: #eee; }
   cursor: pointer;
   padding: 0 16px;
   white-space: nowrap;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
 .btn1 { height: 30px; font-size: 15px; }
-.btn { height: 40px; line-height: 40px; font-size: 1em; }
+.btn2 {
+  height: 30px;              /* slightly larger for touch */
+  width: 30px;               /* square, good for circular buttons */
+  line-height: 30px;
+  font-size: 1em;           /* bigger for readability*/
+  border-radius: 50%;         /* circular style */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+/* ===== Buttons ===== */
+.btn {
+  height: 44px;              /* slightly larger for touch */
+  width: 44px;               /* square, good for circular buttons */
+  line-height: 44px;
+  font-size: 1.2em;           /* bigger for readability */
+  border:1px solid purple;
+  border-radius: 50%;         /* circular style */
+  background:#25d366;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.btn:active {
+  background: #eee;           /* tap feedback */
+}
+
+button i {
+  color: purple;
+  font-size: 22px;            /* slightly larger for mobile */
+}
 
 /* ===== Input bar ===== */
 .inputbar {
@@ -245,15 +403,20 @@ body.dark .typing-indicator span { background: #eee; }
   position: sticky;
   bottom: 0;
   background: #f9f9f9;
+  padding: 8px;
+  border: 1px solid #25d366;
   border-radius: 8px;
 }
+
 .inputbar input {
   flex: 1;
-  padding: 10px;
+  padding: 12px;              /* bigger tap area */
   font-size: 1em;
-  border: 1px solid #ccc;
-  border-radius: 8px;
+  border: 1px solid purple;
+  border-radius: 20px;        /* smoother pill shape */
+  outline: none;
 }
+
 
 /* ===== Media inside bubbles ===== */
 .bubble img, 
@@ -292,25 +455,96 @@ body.dark .bubble a {
   color: #64b5f6;
 }
 
-/* ===== Dark mode ===== */
+/* ===== Dark mode base ===== */
 body.dark {
-  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-  color: #eee;
+  background: linear-gradient(135deg, #0f2027, #203a43, #2c5364); /* keep your gradient */
+  color: #eee; /* keep your text color */
 }
 
-body.dark #chat { background: #1e1e1e; border-color: #444; }
-body.dark .row.in .bubble { background: #333; color: #eee; }
-body.dark .row.out .bubble { background: #1565c0; color: #fff; }
-body.dark .notice { color: #aaa; }
-body.dark .ts { color: #bbb; }
-body.dark .ticks { color: #bbb; }
-body.dark .ticks.seen { color: lightgreen; }
+body.dark #chat {
+  background: #1e1e1e;
+  border-color: #444;
+}
+
+/* ===== Incoming bubbles (other users) ===== */
+body.dark .row.in .bubble {
+  background-color: #262626; /* Instagram deep gray */
+  color: #fff;
+  border-radius: 18px;
+  padding: 8px 12px;
+  max-width: 70%;
+}
+
+/* ===== Outgoing bubbles (your messages) ===== */
+body.dark .row.out .bubble {
+  background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045); /* Instagram gradient */
+  color: #fff;
+  border-radius: 18px;
+  padding: 8px 12px;
+  max-width: 70%;
+}
+
+/* ===== Notices ===== */
+body.dark .notice {
+  color: #aaa;
+}
+
+/* ===== Date divider ===== */
+body.dark .date-divider {
+  color: #aaa;
+}
+
+/* ===== Meta info (timestamps, ticks) ===== */
+body.dark .ts,
+body.dark .ticks,
+body.dark .meta {
+  color: #bbb;
+  font-size: 0.75em;
+}
+
+/* Seen ticks specifically */
+body.dark .ticks.seen {
+  color: lightgreen;
+}
+
+/* ===== Reaction display ===== */
+body.dark .reaction-display span {
+  background-color: #333;
+  color: #fff;
+  border-radius: 12px;
+  padding: 2px 6px;
+  margin-right: 4px;
+}
 
 /* ===== Responsive ===== */
 @media (max-width:600px) {
-  .container { width:92%; max-width: 95%; }
-  #chat { border-radius: 8px; }
-  .topbar { height:20px; width:100%; }
+	
+  .container { 
+    width:92%; 
+	max-width: 95%; 
+  }
+  
+  #chat { 
+    border-radius: 8px;
+	margin-bottom:60px;
+  }
+  
+  .topbar { 
+    height:20px; 
+	width:100%; 
+  
+  }
+  /* Input bar sticks to bottom, full width */
+  .inputbar {
+    position: fixed;
+    bottom: 0;
+    left:50%;
+    transform:translate(-50%);
+    width: 95%;
+    border-radius: 6px;
+    margin: 0;
+  }
+  
 }
 
 /* ===== Bubble fade-in animation ===== */

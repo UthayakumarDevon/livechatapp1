@@ -5,15 +5,24 @@
   <title>ChatApp</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
 </head>
 <body>
   <div class="container">
-    <h2>ChatRoom</h2>
+    <h2 class="chat-header">ChatRoom
+      <button id="backgroundBtn" class="profile-btn">Bg Img</button>
+	  <input type="file" id="backgroundInput" accept="image/*" style="display:none;">
+	  <button id="avatarBtn" class="profile-btn">dp</button>
+      <input type="file" id="avatarInput" accept="image/*" style="display:none;">
+      <img id="myAvatar" class="avatar" src="" alt="Avatar" >
+    </h2>
+	
     <div class="topbar">
       <input class="bar1" id="roomInput" placeholder="Room">
       <input class="bar1" id="nameInput" placeholder="Your name">
       <button id="joinBtn" class="btn1">Join</button>
-      <button id="darkBtn" class="btn1">Dark Mode</button>
+      <button id="darkBtn" class="btn2">🌙</button>
     </div>
 
     <!-- Date banner -->
@@ -25,7 +34,7 @@
     <!-- Input bar with text + file upload -->
     <div class="inputbar">
       <input id="msgInput" placeholder="Type a message">
-      <button id="sendBtn" class="btn">Send</button>
+      <button id="sendBtn" class="btn"><i class="fas fa-paper-plane"></i></button>
 
       <!-- Hidden file input -->
       <input type="file" id="fileInput" 
@@ -33,7 +42,7 @@
              style="display:none">
 
       <!-- Upload button triggers file picker -->
-      <button id="uploadBtn" class="btn">Upload</button>
+      <button id="uploadBtn" class="btn"><i class="fas fa-paperclip"></i></button>
     </div>
   </div>
 
