@@ -24,7 +24,6 @@ body {
   font-weight: bold;
   font-size: 0.95em;
   color: #222;
-  margin: 6px 0;
   padding: 6px 10px;
   background: #f0f0f0;
   border-bottom: 1px solid #ccc;   /* subtle separator line */
@@ -46,7 +45,6 @@ body.dark #dateBanner {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 12px 0;
   font-size: 0.85em;
   color: #666;
   position: sticky;
@@ -333,7 +331,6 @@ body.dark .typing-indicator span { background: #eee; }
   display: flex;
   align-items: center;
   gap: 8px;
-  margin: 8px 0;
   height: 40px;
   border-radius: 6px;
 }
@@ -397,8 +394,7 @@ button i {
 .inputbar {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin: 8px 0;
+  gap: 6px;
   position: sticky;
   bottom: 0;
   background: #f9f9f9;
