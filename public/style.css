@@ -406,6 +406,8 @@ button i {
   padding: 8px;
   border: 1px solid #25d366;
   border-radius: 8px;
+  left:50%;
+  transform:translate(-50%);
 }
 
 .inputbar input {
