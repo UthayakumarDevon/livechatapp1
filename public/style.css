@@ -406,8 +406,6 @@ button i {
   padding: 8px;
   border: 1px solid #25d366;
   border-radius: 8px;
-  left:50%;
-  transform:translate(-50%);
 }
 
 .inputbar input {
@@ -542,6 +540,8 @@ body.dark .reaction-display span {
     bottom: 0;
     border-radius: 6px;
     margin: 0;
+	left:50%;
+    transform:translate(-50%);
   }
   
 }
