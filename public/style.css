@@ -28,7 +28,6 @@ body {
   background: #f0f0f0;
   border-bottom: 1px solid #ccc;   /* subtle separator line */
   border-radius:6px;
-  margin-top:2px;
   position: sticky;
   top: 0;
   z-index: 10;                     /* ensure it stays above chat */
@@ -332,6 +331,7 @@ body.dark .typing-indicator span { background: #eee; }
   display: flex;
   align-items: center;
   gap: 8px;
+  margin: 4px 0;
   height: 40px;
   border-radius: 6px;
 }
