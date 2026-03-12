@@ -16,7 +16,6 @@ body {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  padding: 12px;
 }
 
 /* ===== Date banner ===== */
@@ -520,8 +519,8 @@ body.dark .reaction-display span {
 @media (max-width:600px) {
 	
   .container { 
-    width:92%; 
-	max-width: 95%; 
+    width:100%; 
+	max-width: 100%; 
   }
   
   #chat { 
