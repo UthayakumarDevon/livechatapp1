@@ -634,14 +634,6 @@ row.appendChild(avatarEl);
   });
 }
 
-// ===== Date Banner Update =====
-function updateDateBanner() {
-  const banner = document.getElementById('dateBanner');
-  if (lastRenderedDate) {
-    // Use the last rendered date string, not Date.now()
-    banner.textContent = formatDayLabel(new Date(lastRenderedDate));
-  }
-}
 
 // ===== Midnight Auto-Update =====
 function scheduleMidnightUpdate() {
