@@ -395,18 +395,19 @@ button i {
 
 /* ===== Input bar ===== */
 .inputbar {
+  width:100%;
   display: flex;
   align-items: center;
   gap: 8px;
   margin: 8px 0;
   position: sticky;
   bottom: 0;
-  background: #f9f9f9;
-  padding: 8px;
-  border: 1px solid #25d366;
-  border-radius: 8px;
   left:50%;
   transform:translate(-50%);
+  background: #f9f9f9;
+  padding: 10px;
+  border: 1px solid #25d366;
+  border-radius: 8px;
 }
 
 .inputbar input {
@@ -539,10 +540,10 @@ body.dark .reaction-display span {
   .inputbar {
     position: fixed;
     bottom: 0;
-    border-radius: 6px;
-    margin: 0;
 	left:50%;
     transform:translate(-50%);
+    border-radius: 6px;
+    margin: 0;
   }
   
 }
