@@ -401,7 +401,7 @@ button i {
   align-items: center;
   gap: 8px;
   margin: 8px 0;
-  position: sticky;
+  position: fixed;
   bottom: 0;
   background: #f9f9f9;
   padding: 10px;
