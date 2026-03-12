@@ -17,6 +17,7 @@ body {
   flex-direction: column;
   height: 100vh;
 }
+
 /* ===== Date banner ===== */
 #dateBanner {
   text-align: center;
@@ -37,6 +38,7 @@ body.dark #dateBanner {
   color: #eee;
   border-bottom: 1px solid #555;
 }
+
 /* ===== Date divider ===== */
 .date-divider {
   font-weight: bold;
