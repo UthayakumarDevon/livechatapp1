@@ -395,7 +395,7 @@ button i {
 
 /* ===== Input bar ===== */
 .inputbar {
-  width:100%;
+  max-width:100%;
   display: flex;
   align-items: center;
   gap: 8px;
