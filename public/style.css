@@ -402,8 +402,6 @@ button i {
   margin: 8px 0;
   position: sticky;
   bottom: 0;
-  left:50%;
-  transform:translate(-50%);
   background: #f9f9f9;
   padding: 10px;
   border: 1px solid #25d366;
@@ -540,8 +538,6 @@ body.dark .reaction-display span {
   .inputbar {
     position: fixed;
     bottom: 0;
-	left:50%;
-    transform:translate(-50%);
     border-radius: 6px;
     margin: 0;
   }
