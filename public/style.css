@@ -400,11 +400,10 @@ button i {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin: 8px 0;
-  position: fixed;
+  position: sticky;
   bottom: 0;
   background: #f9f9f9;
-  padding: 10px;
+  padding: 8px;
   border: 1px solid #25d366;
   border-radius: 8px;
 }
