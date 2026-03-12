@@ -534,13 +534,7 @@ body.dark .reaction-display span {
 	width:100%; 
   
   }
-  /* Input bar sticks to bottom, full width */
-  .inputbar {
-    position: fixed;
-    bottom: 0;
-    border-radius: 6px;
-    margin: 0;
-  }
+
   
 }
 
