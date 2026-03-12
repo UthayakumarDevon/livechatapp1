@@ -17,7 +17,26 @@ body {
   flex-direction: column;
   height: 100vh;
 }
+/* ===== Date banner ===== */
+#dateBanner {
+  text-align: center;
+  font-weight: bold;
+  font-size: 0.95em;
+  color: #222;
+  padding: 6px 10px;
+  background: #f0f0f0;
+  border-bottom: 1px solid #ccc;   /* subtle separator line */
+  border-radius:6px;
+  position: sticky;
+  top: 0;
+  z-index: 10;                     /* ensure it stays above chat */
+}
 
+body.dark #dateBanner {
+  background: #333;
+  color: #eee;
+  border-bottom: 1px solid #555;
+}
 /* ===== Date divider ===== */
 .date-divider {
   font-weight: bold;
@@ -293,7 +312,7 @@ body.dark .typing-indicator span { background: #eee; }
 /* ===== Heading ===== */
 .container h2 {
   margin: 0;
-  padding: 8px 12px;
+  padding: 6px 10px;
   text-align: center;
   font-size: 1.5em;
   font-weight: bold;
